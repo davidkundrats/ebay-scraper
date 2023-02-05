@@ -16,11 +16,11 @@ def xaScraper(): # scrapes predetermined ebay URL link for the first 5 pages and
         priceTags = soup.findAll('span', class_ = 's-item__price')
         dateTags = soup.findAll('div', class_ = 's-item__title--tag')
 
-        for date in dateTags: # need to filter out the second span tag identified by class 'clipped' 
+        for date in dateTags: # need to filter out the second span tag identified by class 'clipped' use span tag identified by 'POSITIVE' instead
             extracted = date.find_all('span', class_ = 'POSITIVE')
             for i in range(0, len(extracted)): 
                 itemDate.append(extracted[i].get_text()) #place text in itemDate list
-                # genreric update
+
         if(len(nameTags) == len(priceTags)): # need to get rid of bogus first element in both lists
             nameTags.pop(0)
             priceTags.pop(0)
@@ -29,7 +29,7 @@ def xaScraper(): # scrapes predetermined ebay URL link for the first 5 pages and
             return 'error occured with count of name and price tags: revise', -1  ## if elements aren't even something went wrong in counting the listings
         
         if(len(nameTags) == len(priceTags) == len(itemDate)): # verify lengths are the same otherwise exit with status code
-            for i in range(0, len(nameTags)): # all same length doesnt matter length of loop
+            for i in range(0, len(nameTags)): # all same length doesnt matter which is used for loop 
                 itemNames.append(nameTags[i].get_text())
                 itemPrices.append(priceTags[i].get_text()) 
        
@@ -37,4 +37,4 @@ def xaScraper(): # scrapes predetermined ebay URL link for the first 5 pages and
             return "item count + price count and date count mismatch - unable to tabulate data", -1 #if they arent the same its issue with the date scrape
     df = pd.DataFrame({'Listed Name': itemNames, 'Prices': itemPrices, 'Dates': itemDate})
     print(df)
-xaScraper()
+
