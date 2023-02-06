@@ -2,6 +2,8 @@ beautifulsoup4==4.11.2
 bs4==0.0.1
 certifi==2022.12.7
 charset-normalizer==3.0.1
+customtkinter==5.1.1
+darkdetect==0.8.0
 idna==3.4
 numpy==1.24.1
 pandas==1.5.3

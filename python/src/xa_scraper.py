@@ -1,13 +1,33 @@
+import customtkinter as ui, tkinter as tk
+
+ui.set_appearance_mode("dark") 
+ui.set_default_color_theme("dark-blue")
+
+root = ui.CTk()
+
+root.geometry("500x350")
+
+frame = ui.CTkFrame(master = root)
+frame.pack(pady = 20, padx = 60, fill = "both", expand = True)
+
+label = ui.CTkLabel(master = frame, text = "Ebay Sold Price Scraper", font=("Roboto", 24))  
+label.pack(pady = 12, padx = 10) 
+
+url = tk.StringVar() 
+entry = ui.CTkEntry(master = frame, placeholder_text = "Paste ebay link here")
+entry.pack(pady = 12, padx = 10)
+
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 import pandas as pd, numpy as np, requests
 
-def xaScraper(): # scrapes predetermined ebay URL link for the first 5 pages and returns dataframe with scraped data
+def ebayScraper(): # scrapes user supplied ebay URL link for the first 5 pages and returns dataframe with scraped data
+    link = url.get() 
     itemNames = [] # use to append item names and prices after scrape
     itemPrices = []
     itemDate = []
 
-    ebayUrl = "https://www.ebay.com/sch/i.html?_from=R40&_nkw=olympus+xa&_sacat=0&rt=nc&LH_Sold=1&LH_Complete=1"  # figure out how to optimize this to be speciifc to one certain item without hardcoding it (maybe use key listeners??)
+    ebayUrl = link  
     r = requests.request('GET', ebayUrl, headers ={'User-Agent' : 'Mozilla/5.0'})
 
     with requests.Session() as session: # open session 
@@ -37,4 +57,11 @@ def xaScraper(): # scrapes predetermined ebay URL link for the first 5 pages and
             return "item count + price count and date count mismatch - unable to tabulate data", -1 #if they arent the same its issue with the date scrape
     df = pd.DataFrame({'Listed Name': itemNames, 'Prices': itemPrices, 'Dates': itemDate})
     print(df)
+
+
+
+button = ui.CTkButton(master = frame, text = "Search", command = ebayScraper)
+button.pack(pady = 12, padx = 10)
+
+root.mainloop() 
 
