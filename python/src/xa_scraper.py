@@ -13,21 +13,25 @@ frame.pack(pady = 20, padx = 60, fill = "both", expand = True)
 label = ui.CTkLabel(master = frame, text = "Ebay Sold Price Scraper", font=("Roboto", 24))  
 label.pack(pady = 12, padx = 10) 
 
-url = tk.StringVar() 
+
 entry = ui.CTkEntry(master = frame, placeholder_text = "Paste ebay link here")
 entry.pack(pady = 12, padx = 10)
 
+def get_input(): 
+    input = entry.get() 
+    ebayScraper(input)
+    
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 import pandas as pd, numpy as np, requests
 
-def ebayScraper(): # scrapes user supplied ebay URL link for the first 5 pages and returns dataframe with scraped data
-    link = url.get() 
+def ebayScraper(input): # scrapes user supplied ebay URL link for the first page and returns dataframe with scraped data
+     
     itemNames = [] # use to append item names and prices after scrape
     itemPrices = []
     itemDate = []
-
-    ebayUrl = link  
+    
+    ebayUrl = input
     r = requests.request('GET', ebayUrl, headers ={'User-Agent' : 'Mozilla/5.0'})
 
     with requests.Session() as session: # open session 
@@ -60,7 +64,7 @@ def ebayScraper(): # scrapes user supplied ebay URL link for the first 5 pages a
 
 
 
-button = ui.CTkButton(master = frame, text = "Search", command = ebayScraper)
+button = ui.CTkButton(master = frame, text = "Search", command = get_input)
 button.pack(pady = 12, padx = 10)
 
 root.mainloop() 
