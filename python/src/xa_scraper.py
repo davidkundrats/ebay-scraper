@@ -1,37 +1,21 @@
-import customtkinter as ui, tkinter as tk
-
-ui.set_appearance_mode("dark") 
-ui.set_default_color_theme("dark-blue")
-
-root = ui.CTk()
-
-root.geometry("500x350")
-
-frame = ui.CTkFrame(master = root)
-frame.pack(pady = 20, padx = 60, fill = "both", expand = True)
-
-label = ui.CTkLabel(master = frame, text = "Ebay Sold Price Scraper", font=("Roboto", 24))  
-label.pack(pady = 12, padx = 10) 
-
-
-entry = ui.CTkEntry(master = frame, placeholder_text = "Paste ebay link here")
-entry.pack(pady = 12, padx = 10)
-
-def get_input(): 
-    input = entry.get() 
-    ebayScraper(input)
-    
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
-import pandas as pd, numpy as np, requests
+from pathlib import Path
+import pandas as pd 
+import numpy as np
+import requests
+import customtkinter as ui
+import tkinter as tk
 
-def ebayScraper(input): # scrapes user supplied ebay URL link for the first page and returns dataframe with scraped data
+def ebayScraper(input, output): # scrapes user supplied ebay URL link for the first page and returns dataframe with scraped data
+
      
     itemNames = [] # use to append item names and prices after scrape
     itemPrices = []
     itemDate = []
     
     ebayUrl = input
+    path = output
     r = requests.request('GET', ebayUrl, headers ={'User-Agent' : 'Mozilla/5.0'})
 
     with requests.Session() as session: # open session 
@@ -59,13 +43,44 @@ def ebayScraper(input): # scrapes user supplied ebay URL link for the first page
        
         else: 
             return "item count + price count and date count mismatch - unable to tabulate data", -1 #if they arent the same its issue with the date scrape
-    df = pd.DataFrame({'Listed Name': itemNames, 'Prices': itemPrices, 'Dates': itemDate})
-    print(df)
+    createDf(itemNames, itemPrices, itemDate, output + '/out.csv')
+
+def createDf(name, price, date, output):   #create dataframe with the data
+    path = Path(output)       
+    df = pd.DataFrame({'Listed Name': name, 'Prices': price, 'Dates': date})
+    path.parent.mkdir(parents = True, exist_ok = True)
+    df.to_csv(path)
+
+def get_input(): 
+    linkInput = linkEntry.get() 
+    pathInput = pathEntry.get()
+    ebayScraper(linkInput, pathInput)
+
+ui.set_appearance_mode("dark") 
+ui.set_default_color_theme("dark-blue")
+
+root = ui.CTk()
+
+root.geometry("500x350")
+frame = ui.CTkFrame(master = root)
+frame.pack(pady = 20, padx = 60, fill = "both", expand = True)
+
+label = ui.CTkLabel(master = frame, text = "Ebay Sold Price Scraper", font=("Roboto", 24))  
+label.pack(pady = 12, padx = 10) 
 
 
+linkEntry = ui.CTkEntry(master = frame, placeholder_text = "Paste ebay link here")
+linkEntry.pack(pady = 12, padx = 10)
+
+pathEntry = ui.CTkEntry(master = frame, placeholder_text= "Set path to save csv")
+pathEntry.pack(pady = 20, padx = 16)
 
 button = ui.CTkButton(master = frame, text = "Search", command = get_input)
 button.pack(pady = 12, padx = 10)
 
-root.mainloop() 
+root.mainloop()
+
+
+
+ 
 
