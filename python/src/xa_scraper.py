@@ -16,7 +16,7 @@ def run():
     pathInput = pathEntry.get()
     ebayScraper(linkInput, pathInput)
 
-def ebayScraper(input, output): # scrapes user supplied ebay URL link for the first page and returns dataframe with scraped data
+def ebayScraper(input, path): # scrapes user supplied ebay URL link for the first page and returns dataframe with scraped data
 
      
     itemNames = [] # use to append item names and prices after scrape
@@ -24,7 +24,7 @@ def ebayScraper(input, output): # scrapes user supplied ebay URL link for the fi
     itemDate = []
     
     ebayUrl = input
-    path = output
+    path = path
     r = requests.request('GET', ebayUrl, headers ={'User-Agent' : 'Mozilla/5.0'})
     try:
         with requests.Session() as session: # open session 
@@ -43,31 +43,41 @@ def ebayScraper(input, output): # scrapes user supplied ebay URL link for the fi
                 priceTags.pop(0)
 
             else: 
-                return 'error occured with count of name and price tags: revise', -1  ## if elements aren't even something went wrong in counting the listings
+                return 'error occured with count of name and price tags: invalid link'  ## if elements aren't even something went wrong in counting the listings
         
             if(len(nameTags) == len(priceTags) == len(itemDate)): # verify lengths are the same otherwise exit with status code
                 for i in range(0, len(nameTags)): # all same length doesnt matter which is used for loop 
                     itemNames.append(nameTags[i].get_text())
                     itemPrices.append(priceTags[i].get_text())
-                createDf(itemNames, itemPrices, itemDate, output + '/out.csv')
+                createDf(itemNames, itemPrices, itemDate, path + '/out.csv')
        
             else: 
                 return "item count + price count and date count mismatch - unable to tabulate data", -1 #if they arent the same its issue with the date scrape
 
     except Exception as Argument: 
-        print(Argument)
+        logging.exception(Argument)
 
-def createDf(name, price, date, output):  # create dataframe with the data
-    path = Path(output)       
-    df = pd.DataFrame({'Listed Name': name, 'Prices': price, 'Dates': date})
+def createDf(name, price, date, path):  # create dataframe with the data
+    path = Path(path)       
+    df = pd.DataFrame({'Listed Name': name, 'Sold Price': price, 'Date Sold': date})
+    columns = df.columns
+    df['Date Sold'] = df['Date Sold'].str.replace('Sold  ?' , '')
+    df[columns] = df[columns].replace({'\$':''}, regex= True)
+    df.set_index(['Date Sold'], inplace= True)
     path.parent.mkdir(parents = True, exist_ok = True)
     df.to_csv(path)
+    print(df)
     displayComplete()
 
 def displayComplete(): 
     popup = ui.CTkToplevel(root)
-    popup.geometry("200x150")
+    popup.geometry("400x150")
     popup.wm_title("Complete!")
+    button = ui.CTkButton(master = popup, text = "Visualize Data?", command = visualizeData)
+    button.pack(pady = 24, padx = 18)
+    
+def visualizeData(): 
+    pass
 
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
