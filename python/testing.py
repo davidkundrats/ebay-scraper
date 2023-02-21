@@ -7,15 +7,18 @@ import requests
 import customtkinter as ui
 import numpy as np
 from matplotlib import pyplot as plt
+import re
 
-global DF
+"""Testing enviornment for functions"""
 
 
 def run():
     """ Activated by search button within GUI. Captures user input 
         from CTkEntry object and calls ebay_scraper method with link input as argument"""
-    link_input = link_entry.get()
-    ebay_scraper(link_input)
+    print('paste ebay link')
+    sc = input()
+
+    ebay_scraper(sc)
 
 
 def ebay_scraper(input):
@@ -68,6 +71,34 @@ def ebay_scraper(input):
         logging.exception(argument)
 
 
+def date_maker(string):
+    match string:
+        case 'Jan':
+            return "01"
+        case 'Feb':
+            return '02'
+        case 'Mar':
+            return '03'
+        case 'Apr':
+            return '04'
+        case 'May':
+            return '05'
+        case 'Jun':
+            return '06'
+        case 'Jul':
+            return '07'
+        case 'Aug':
+            return '08'
+        case 'Sep':
+            return '09'
+        case 'Oct':
+            return '10'
+        case 'Nov':
+            return '11'
+        case 'Dec':
+            return '12'
+
+
 def create_df(name, price, date):
     """Creates dataframe and cleans data of '$' and commas present. Calls display 
     complete method after df is succesfully generated."""
@@ -85,65 +116,14 @@ def create_df(name, price, date):
     # cast prices as ints as they were scraped as strings
     DF['Sold Price'] = DF['Sold Price'].astype(float)
 
-    display_complete()  # route to next page
+
+def price_filter(entry):
+    """Filter sales prices based on user given int"""
+    print("filter based on price")
+    filter = float(entry)
+    global DF
+    DF = DF[DF['Sold Price'] >= filter]
+    print(DF)
 
 
-def display_complete():
-    """Create popup window with several methods of visualizing scraped 
-    data. Allows user to save dataframe as a .csv to a specified location on the drive."""
-    popup = ui.CTkToplevel(root)
-    popup.geometry("500x450")
-    popup.wm_title("Complete!")
-    label = ui.CTkLabel(
-        master=popup, text="Generated Dataframe. Plot options below or save as CSV")
-    label.pack(pady=12, padx=9)
-    path_entry = ui.CTkEntry(
-        master=popup, placeholder_text="Set path to save csv")
-    path_entry.pack(pady=20, padx=16)
-    plot_button = ui.CTkButton(
-        master=popup, text="Average Price", command=avg_price)
-    plot_button.pack(pady=24, padx=18)
-    save_to_csvbutton = ui.CTkButton(
-        master=popup, text="Save", command=save_csv)
-    save_to_csvbutton.pack(pady=32, padx=24)
-
-
-def save_csv():
-    """Method to save df as .csv using pathlib library"""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    DF.to_csv(path)
-
-
-def avg_price():
-    """Method used to calculate and visualize the average sold price. Connected via a CTk button 
-    in the popup window. """
-    plt.plot()
-    plt.show()
-
-
-ctypes.windll.shcore.SetProcessDpiAwareness(2)
-
-root = ui.CTk()
-
-root.geometry("500x175")
-
-
-frame = ui.CTkFrame(master=root)
-frame.pack(fill="both", expand=True)
-
-ui.set_appearance_mode("dark")
-ui.set_default_color_theme("dark-blue")
-
-label = ui.CTkLabel(
-    master=frame, text="Ebay Sold Price Scraper", font=("Roboto", 24))
-label.pack(pady=12, padx=10)
-
-
-link_entry = ui.CTkEntry(master=frame, placeholder_text="Paste ebay link here")
-link_entry.pack(pady=12, padx=10)
-
-button = ui.CTkButton(master=frame, text="Search", command=run)
-button.pack(pady=12, padx=10)
-
-root.mainloop()
+run()
