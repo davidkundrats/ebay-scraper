@@ -6,6 +6,7 @@ import requests
 import customtkinter as ui
 import numpy as np
 import mplcursors
+import tkinter as tk
 from matplotlib import pyplot as plt
 from datetime import datetime
 
@@ -56,6 +57,7 @@ def ebay_scraper(input):
             name_tags.pop(0)
             price_tags.pop(0)
             link_tags.pop(0)
+
 
         else:
             # if elements aren't even something went wrong in counting the listings
