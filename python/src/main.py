@@ -18,13 +18,13 @@ global DF
 def run():
     """ Activated by search button within GUI. Captures user input 
         from CTkEntry object and calls ebay_scraper method with link input as argument"""
-    link_input = link_entry.get()
+    link_input = input("Enter a sold listing url: ")
     ebay_scraper(link_input)
 
 
-def ebay_scraper(input):
+def ebay_scraper(link_input):
     """Main algorithm of the program. Uses requests library, beautiful soup """
-    ebayLink = input
+    ebayLink = link_input
     item_names = []  # use to append item names and prices after scrape
     item_prices = []
     item_date = []
@@ -75,11 +75,17 @@ def ebay_scraper(input):
 
         else:
             # if they arent the same its issue with the date scrape
-            raise Exception('unable to tabulate data')
+            raise Exception('unable to tabulate data') ## TODO: make this more descriptive
             error_label.config
+        
+        print("Data scrape complete.")
+        next_step = input("Enter (S)ave CSV (A)verage price: ")
+
+        determine(next_step)
+
 
     except Exception as argument:
-        logging.exception(argument)
+        logging.exception(argument) ## TODO: make this more descriptive
         
 
 
@@ -99,35 +105,7 @@ def create_df(name, price, date):
 
     # cast prices as ints as they were scraped as strings
     DF['Sold Price'] = DF['Sold Price'].astype(float)
- 
-    display_complete()  # route to next page
-
-
-def display_complete():
-    """Create popup window with several methods of visualizing scraped 
-    data. Allows user to save dataframe as a .csv to a specified location on the drive."""
-    popup = ui.CTkToplevel(root)
-    popup.geometry("400x450")
-    popup.wm_title("Complete!")
-    label = ui.CTkLabel(
-        master=popup, text="Generated Dataframe. Plot options below or save as CSV")
-    label.pack(side='top', pady=12, padx=9)
-    path_entry = ui.CTkEntry(
-        master=popup, placeholder_text="Set path to save csv")
-    path_entry.pack(side='top', pady=20, padx=16)
-    plot_button = ui.CTkButton(
-        master=popup, text="Average Price", command=avg_price)
-    plot_button.pack(side='top', pady=24, padx=18)
-    save_to_csvbutton = ui.CTkButton(
-        master=popup, text="Save", command=lambda: save_csv(path_entry.get()))
-    save_to_csvbutton.pack(side='top', pady=32, padx=24)
-    exit_button = ui.CTkButton(
-        master = popup, text= "Exit", command = close_window)
-    exit_button.pack(side = 'top', pady = 42, padx = 30)
-
-
-    
-
+  
 
 def save_csv(path):
     """Method to save df as .csv using pathlib library"""
@@ -135,9 +113,9 @@ def save_csv(path):
     path.parent.mkdir(parents=True, exist_ok=True)
     DF.to_csv(path)
 
+
 def avg_price():
-    """Method used to calculate and visualize the average sold price. Connected via a CTk button 
-    in the popup window. """
+    """Method used to calculate and visualize the average sold price. """
     DF['Date Sold'] = pd.to_datetime(DF['Date Sold'], format='%b %d %Y')
     ax = plt.gca()
     ax.plot(DF['Date Sold'], DF['Sold Price'], 'o', markersize=4) 
@@ -145,42 +123,12 @@ def avg_price():
     cursor.connect("add", lambda sel: sel.annotation.set_text(DF['Listed Name'][sel.target.index])) 
     plt.show()
 
-def close_window(): 
-    root.destroy()
-    return(1)
+def determine(inputs):
+   
+    if inputs == 'A': 
+        avg_price()
+    elif input == 'S': 
+        path = input("Please enter a path to save data as CSV: ")
+        save_csv(path)
 
-
-
-root = ui.CTk()
-root.title("My Window")
-
-# Get the dimensions of the screen
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-
-# Set the position of the window to the center of the screen
-window_width = 400
-window_height = 200
-x_pos = (screen_width - window_width) // 2
-y_pos = (screen_height - window_height) // 2
-root.geometry("{}x{}+{}+{}".format(window_width, window_height, x_pos, y_pos))
-
-frame = ui.CTkFrame(master=root)
-frame.pack(fill="both", expand=True)
-
-ui.set_appearance_mode("dark")
-ui.set_default_color_theme("dark-blue")
-
-label = ui.CTkLabel(
-    master=frame, text="Ebay Sold Price Scraper", font=("Roboto", 24))
-label.pack(pady=12, padx=10)
-
-
-
-link_entry = ui.CTkEntry(master=frame, placeholder_text="Paste ebay link here")
-link_entry.pack(pady=12, padx=10)
-
-button = ui.CTkButton(master=frame, text="Search", command=run)
-button.pack(pady=12, padx=10)
-
-root.mainloop()
+run()
