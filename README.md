@@ -1,5 +1,5 @@
 # ebay-scraper
-a simple gui based ebay scraper to demonstrate basic webscraping and its applications
+a simple ebay scraper to demonstrate basic webscraping and its applications
 
 (2/17/23)
 
