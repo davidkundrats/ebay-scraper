@@ -1,14 +1,11 @@
 from pathlib import Path
-import logging
+import sys
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
-import customtkinter as ui
 import numpy as np
 import mplcursors
-import tkinter as tk
 from matplotlib import pyplot as plt
-from datetime import datetime
 
 
 
@@ -17,15 +14,20 @@ global DF
 
 def run():
     """ Activated by search button within GUI. Captures user input 
-        from CTkEntry object and calls ebay_scraper method with link input as argument"""
-    link_input = input("Enter a sold listing url: ")
-    ebay_scraper(link_input)
+      and calls ebay_scraper method with link_input as argument"""
+    try: 
+        link_input = input("Enter a sold listing url: ")
+        ebay_scraper(link_input)
+    except Exception as argument:
+        print(argument, file= "log.txt")
+        print("Your link is invalid. Please enter a valid link.")
+        run()     
 
 
 def ebay_scraper(link_input):
     """Main algorithm of the program. Uses requests library, beautiful soup """
     ebayLink = link_input
-    item_names = []  # use to append item names and prices after scrape
+    item_names = []  
     item_prices = []
     item_date = []
     item_links = []
@@ -85,13 +87,13 @@ def ebay_scraper(link_input):
 
 
     except Exception as argument:
-        logging.exception(argument) ## TODO: make this more descriptive
+        print >> sys.stderr, argument ## TODO: make this more descriptive
+        
         
 
 
 def create_df(name, price, date):
-    """Creates dataframe and cleans data of '$' and commas present. Calls display 
-    complete method after df is succesfully generated."""
+    """Creates dataframe and truncates '$' and commas present. """
     global DF
     DF = pd.DataFrame(
         {'Listed Name': name, 'Sold Price': price, 'Date Sold': date})
