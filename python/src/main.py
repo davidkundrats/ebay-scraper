@@ -1,13 +1,14 @@
 from pathlib import Path
+from matplotlib import pyplot as plt
 import sys
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 import mplcursors
 import matplotlib
-import tkinter as tk
+import matplotlib.dates as mdates
 matplotlib.use('TkAgg')
-from matplotlib import pyplot as plt
+
 
 #TODO: fix the usage of this data frame variable from being global
 global DF  
@@ -102,17 +103,39 @@ def save_csv(path):
     DF.to_csv(path)
 
 
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import mplcursors
+import pandas as pd
+
+
 def avg_price():
     """Method used to calculate and visualize the average sold price."""
-    #TODO: fix functionality in displaying the item name on hover and lining up with
+    # TODO: fix functionality in displaying the item name on hover and lining up with
     # the correct date
     DF['Date Sold'] = pd.to_datetime(DF['Date Sold'], format='%b %d %Y')
     ax = plt.gca()
     ax.plot(DF['Date Sold'], DF['Sold Price'], 'o', markersize=4)
-    cursor = mplcursors.cursor(ax, hover=True)
-    cursor.connect("add", lambda sel: sel.annotation.set_text(DF['Listed Name'][sel.target.index]))
-    plt.show()
+    median_price = DF['Sold Price'].median()
+    ax.axhline(y=median_price, color='r', linestyle='--', label='Median Price')
 
+    current_month = DF['Date Sold'].iloc[0].month  # Get the month of the first date
+    filtered_df = DF[DF['Date Sold'].dt.month == current_month]  # Filter data for the current month
+
+    # Set x-axis range to cover only the current month
+    min_date = filtered_df['Date Sold'].min()
+    max_date = filtered_df['Date Sold'].max()
+    ax.set_xlim(min_date, max_date)
+
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
+
+    cursor = mplcursors.cursor(ax, hover=True)
+    cursor.connect("add", lambda sel: sel.annotation.set_text(filtered_df['Listed Name'][sel.target.index]))
+    ax.legend()
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better visibility
+    plt.tight_layout()  # Adjust layout to prevent label overlap
+    plt.show()
 
 def determine(inputs):
     """Method to determine which function to call based on user input"""
