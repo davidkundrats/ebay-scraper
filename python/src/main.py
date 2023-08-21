@@ -4,20 +4,22 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 import mplcursors
+import matplotlib
+import tkinter as tk
+matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
+
 #TODO: fix the usage of this data frame variable from being global
 global DF  
+
 
 def run():
     """Activated by search button. Captures user input
 and calls ebay_scraper method with link_input as argument"""
-    try:
-        link_input = input("Enter a sold listing url: ")
-        ebay_scraper(link_input)
-    except Exception:
-        ## TODO: make this log error in txt file
-        print("Your link is invalid. Please enter a valid link.")
-        run()
+    link_input = input("Enter a sold listing url: ")
+    ebay_scraper(link_input)
+    run()
+
 
 def ebay_scraper(link_input):
     """Main algorithm of the program. Uses requests library, beautiful soup """
@@ -78,6 +80,7 @@ def ebay_scraper(link_input):
     except Exception as argument:
         print >> sys.stderr, argument ## TODO: make this more descriptive
 
+
 def create_df(name, price, date):
     """Creates dataframe and truncates '$' and commas present. """
     global DF
@@ -91,11 +94,13 @@ def create_df(name, price, date):
     # cast prices as ints as they were scraped as strings
     DF['Sold Price'] = DF['Sold Price'].astype(float)
 
+
 def save_csv(path):
     """Method to save df as .csv using pathlib library"""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     DF.to_csv(path)
+
 
 def avg_price():
     """Method used to calculate and visualize the average sold price."""
@@ -108,6 +113,7 @@ def avg_price():
     cursor.connect("add", lambda sel: sel.annotation.set_text(DF['Listed Name'][sel.target.index]))
     plt.show()
 
+
 def determine(inputs):
     """Method to determine which function to call based on user input"""
     if inputs == 'A':
@@ -118,5 +124,6 @@ def determine(inputs):
     else:
         print("Invalid input. Please enter either 'A' or 'S' ")
         determine(inputs)
+
 
 run()
