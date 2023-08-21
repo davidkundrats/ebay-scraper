@@ -103,12 +103,6 @@ def save_csv(path):
     DF.to_csv(path)
 
 
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import mplcursors
-import pandas as pd
-
-
 def avg_price():
     """Method used to calculate and visualize the average sold price."""
     # TODO: fix functionality in displaying the item name on hover and lining up with
