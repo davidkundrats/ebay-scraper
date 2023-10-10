@@ -7,41 +7,36 @@ import requests
 import mplcursors
 import matplotlib
 import matplotlib.dates as mdates
+
 matplotlib.use('TkAgg')
 
-
-#TODO: fix the usage of this data frame variable from being global
-global DF  
-
-
 def run():
-    """Activated by search button. Captures user input
-and calls ebay_scraper method with link_input as argument"""
-    link_input = input("Enter a sold listing url: ")
-    ebay_scraper(link_input)
-    run()
-
+    """Activated by search button. Captures user input and calls ebay_scraper method with link_input as an argument"""
+    link_input = input("Enter a sold listing URL: ")
+    df = ebay_scraper(link_input)
+    determine(df)
 
 def ebay_scraper(link_input):
-    """Main algorithm of the program. Uses requests library, beautiful soup """
+    """Main algorithm of the program. Uses requests library, BeautifulSoup, and returns a DataFrame"""
     ebay_link = link_input
     item_names = []
     item_prices = []
     item_date = []
     item_links = []
 
-    requested = requests.request('GET', ebay_link, headers={
-                         'User-Agent': 'Mozilla/5.0'}, timeout=60)
+    requested = requests.request('GET', ebay_link, headers={'User-Agent': 'Mozilla/5.0'}, timeout=60)
+    
     try:
-        soup = BeautifulSoup(requested.content,  features='html.parser')
+        soup = BeautifulSoup(requested.content, features='html.parser')
         name_tags = soup.findAll('div', class_='s-item__title')
         price_tags = soup.findAll('span', class_='s-item__price')
         date_tags = soup.findAll('div', class_='s-item__title--tag')
         link_tags = soup.findAll('a', href=True)
+        
         for date in date_tags:  # need to filter out the second span tag
             extracted = date.find_all('span', class_='POSITIVE')
             if extracted == 'DEFAULT.POSITIVE':
-                return
+                return None
             for i in range(0, len(extracted)):
                 # further clean date string
                 item_date.append(extracted[i].get_text())
@@ -50,97 +45,92 @@ def ebay_scraper(link_input):
             href = link.get('href')  # extract href attribute
             if href:  # ignore if href is empty
                 item_links.append(href)
-            # need to get rid of bogus first element in both lists
+                
+        # need to get rid of the bogus first element in both lists
         if len(name_tags) == len(price_tags):
             name_tags.pop(0)
             price_tags.pop(0)
             link_tags.pop(0)
-
         else:
             # if elements aren't even something went wrong in counting the listings
             print(name_tags, price_tags)
-            raise Exception(
-                'error occured with count of name and price tags: invalid link')
+            raise Exception('error occurred with count of name and price tags: invalid link')
 
-        # verify lengths are the same otherwise exit with status code
+        # verify lengths are the same; otherwise, exit with an exception
         if len(name_tags) == len(price_tags) == len(item_date):
-            # all same length doesnt matter which is used for loop
+            # all same length doesn't matter which is used for loop
             for i in range(0, len(name_tags)):
                 item_names.append(name_tags[i].get_text())
                 item_prices.append(price_tags[i].get_text())
-            create_df(item_names, item_prices, item_date)
+                
+            df = create_df(item_names, item_prices, item_date)
+            print("Data scrape complete.")
+            return df
 
         else:
-            # if they arent the same its issue with the date scrape
-            raise Exception('unable to tabulate data') ## TODO: make this more descriptive
-        print("Data scrape complete.")
-        next_step = input("Enter (S)ave CSV (A)verage price: ")
-
-        determine(next_step)
+            # if they aren't the same, it's an issue with the date scrape
+            raise Exception('Unable to tabulate data') ## TODO: make this more descriptive
 
     except Exception as argument:
         print >> sys.stderr, argument ## TODO: make this more descriptive
-
+        return None
 
 def create_df(name, price, date):
-    """Creates dataframe and truncates '$' and commas present. """
-    global DF
-    DF = pd.DataFrame(
-        {'Listed Name': name, 'Sold Price': price, 'Date Sold': date})
-    columns = DF.columns
-    DF[columns] = DF[columns].replace(  # clean out uneccesary strings in rows
+    """Creates a DataFrame and truncates '$' and commas present."""
+    df = pd.DataFrame({'Listed Name': name, 'Sold Price': price, 'Date Sold': date})
+    columns = df.columns
+    df[columns] = df[columns].replace(  # clean out unnecessary strings in rows
         {'\$': '', '\,': '', '\Sold  ?': ''}, regex=True)
     # remove sales not related to user search
-    DF = DF[DF['Sold Price'].str.contains(pat='to') == False]
-    # cast prices as ints as they were scraped as strings
-    DF['Sold Price'] = DF['Sold Price'].astype(float)
+    df = df[df['Sold Price'].str.contains(pat='to') == False]
+    # cast prices as floats as they were scraped as strings
+    df['Sold Price'] = df['Sold Price'].astype(float)
+    return df
 
-
-def save_csv(path):
-    """Method to save df as .csv using pathlib library"""
+def save_csv(df, path):
+    """Method to save a DataFrame as a .csv using pathlib library"""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    DF.to_csv(path)
+    df.to_csv(path)
 
-
-def avg_price():
+def avg_price(df):
     """Method used to calculate and visualize the average sold price."""
-    # TODO: fix functionality in displaying the item name on hover and lining up with
-    # the correct date
-    DF['Date Sold'] = pd.to_datetime(DF['Date Sold'], format='%b %d %Y')
-    ax = plt.gca()
-    ax.plot(DF['Date Sold'], DF['Sold Price'], 'o', markersize=4)
-    median_price = DF['Sold Price'].median()
+    df['Date Sold'] = pd.to_datetime(df['Date Sold'], format='%b %d %Y')
+    
+    # Filter the DataFrame to keep only the last 30 days
+    last_30_days = df['Date Sold'].max() - pd.DateOffset(days=30)
+    filtered_df = df[df['Date Sold'] >= last_30_days]
+
+    fig, ax = plt.subplots()
+    ax.plot(filtered_df['Date Sold'], filtered_df['Sold Price'], 'o', markersize=4)
+
+    median_price = filtered_df['Sold Price'].median()
     ax.axhline(y=median_price, color='r', linestyle='--', label='Median Price')
-
-    current_month = DF['Date Sold'].iloc[0].month  # Get the month of the first date
-    filtered_df = DF[DF['Date Sold'].dt.month == current_month]  # Filter data for the current month
-
-    # Set x-axis range to cover only the current month
-    min_date = filtered_df['Date Sold'].min()
-    max_date = filtered_df['Date Sold'].max()
-    ax.set_xlim(min_date, max_date)
 
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
 
     cursor = mplcursors.cursor(ax, hover=True)
-    cursor.connect("add", lambda sel: sel.annotation.set_text(filtered_df['Listed Name'][sel.target.index]))
+    cursor.connect("add", lambda sel: sel.annotation.set_text(filtered_df['Listed Name'].iloc[sel.target.index]))
+
     ax.legend()
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better visibility
-    plt.tight_layout()  # Adjust layout to prevent label overlap
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     plt.show()
 
-def determine(inputs):
+def determine(df):
     """Method to determine which function to call based on user input"""
+    if df is None:
+        print("Error occurred during data scraping.")
+        return
+    inputs = input("Enter (S)ave CSV (A)verage price: ")
     if inputs == 'A':
-        avg_price()
-    elif input == 'S':
+        avg_price(df)
+    elif inputs == 'S':
         path = input("Please enter a path to save data as CSV: ")
-        save_csv(path)
+        save_csv(df, path)
     else:
         print("Invalid input. Please enter either 'A' or 'S' ")
-        determine(inputs)
-
+        determine(df)
 
 run()
