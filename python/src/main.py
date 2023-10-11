@@ -1,8 +1,7 @@
 from pathlib import Path
 from matplotlib import pyplot as plt
 from bs4 import BeautifulSoup
-from utils import save_csv
-from utils import avg_price
+from utils import save_csv, avg_price, determine_db_status, add_to_db, retreive_from_db
 import sys
 import pandas as pd
 import requests
@@ -14,7 +13,7 @@ matplotlib.use("TkAgg")
 
 
 def run():
-    """Activated by search button. Captures user input and calls
+    """Activated by default execution. Captures user input and calls
     ebay_scraper method with link_input as an argument"""
     link_input = input("Enter a sold listing URL: ")
     df = ebay_scraper(link_input)
