@@ -43,10 +43,10 @@ def ebay_scraper(link_input):
             price_tags.pop(0)
             link_tags.pop(0)
         else:
-            # if elements aren't even something went wrong in counting the listings
-            print(name_tags, price_tags)
+            #if elements aren't even something went wrong in counting the listings
+            print(f' Count for listing names: {len(name_tags)}, Count for price tags: {len(price_tags)}') 
             raise Exception(
-                "error occurred with count of name and price tags: invalid link"
+                "error occurred with count of name and price tags: invalid link. this usually means you are not supplying a sold listings url"
             )
 
         # verify lengths are the same; otherwise, exit with an exception
@@ -63,9 +63,9 @@ def ebay_scraper(link_input):
         else:
             # if they aren't the same, it's an issue with the date scrape
             raise Exception(
-                "Unable to tabulate data"
+                "Unable to tabulate data. incorrect amount of names, dates and prices. further debugging required "
             )  ## TODO: make this more descriptive
 
     except Exception as argument:
-        print >> sys.stderr, argument  ## TODO: make this more descriptive
+        print( sys.stderr, argument)  ## TODO: make this more descriptive
         return None
