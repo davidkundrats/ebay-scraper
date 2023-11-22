@@ -2,9 +2,9 @@ import sys
 from bs4 import BeautifulSoup
 import requests
 from common.df_utils import create_df
+import pandas as pd
 
-
-def ebay_scraper(link_input):
+def ebay_scraper(link_input:str) -> pd.DataFrame :
     """Main algorithm of the program. Uses requests library,
     BeautifulSoup, and returns a DataFrame"""
     ebay_link = link_input
@@ -27,7 +27,7 @@ def ebay_scraper(link_input):
         for date in date_tags:  # need to filter out the second span tag
             extracted = date.find_all("span", class_="POSITIVE")
             if extracted == "DEFAULT.POSITIVE":
-                return None
+                exit(-1) 
             for i in range(0, len(extracted)):
                 # further clean date string
                 item_date.append(extracted[i].get_text())
@@ -63,9 +63,11 @@ def ebay_scraper(link_input):
         else:
             # if they aren't the same, it's an issue with the date scrape
             raise Exception(
-                "Unable to tabulate data. incorrect amount of names, dates and prices. further debugging required "
-            )  ## TODO: make this more descriptive
+                "Unable to tabulate data. incorrect amount of names, dates and prices. further debugging required ", exit(-1)
+            )
+           
+        ## TODO: make this more descriptive
 
     except Exception as argument:
         print( sys.stderr, argument)  ## TODO: make this more descriptive
-        return None
+        exit(-1)

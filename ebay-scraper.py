@@ -1,10 +1,11 @@
+
 from common.df_utils import (
     save_csv,
     avg_price,
     determine_db_status,
 )
 from common.bs4_utils import ebay_scraper
-
+import pandas as pd
 
 def run():
     """Activated by default execution. Captures user input and calls
@@ -16,7 +17,8 @@ def run():
     determine(df)
 
 
-def determine(df):
+def determine(df:pd.DataFrame):
+    print(df.head)
     """Method to determine which function to call based on user input"""
     if df is None:
         print("Error occurred during data scraping.")
