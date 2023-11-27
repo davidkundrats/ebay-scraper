@@ -1,3 +1,5 @@
 .vscode/
 venv/
 python/src/__pycache__/
+common/__pycache__*
+.projectile*

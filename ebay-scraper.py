@@ -18,7 +18,6 @@ def run():
 
 
 def determine(df:pd.DataFrame):
-    print(df.head)
     """Method to determine which function to call based on user input"""
     if df is None:
         print("Error occurred during data scraping.")
@@ -28,14 +27,14 @@ def determine(df:pd.DataFrame):
     )
     match inputs:
         case "S":
-            save_csv(df)
+            save_csv(df, None) ##need to implement
         case "A":
             avg_price(df)
         case "Q":
             print("Exiting...")
             return
         case "D":
-            determine_db_status(df)
+            determine_db_status()
         case _:
             print("Invalid input. Please try again.")
             determine(df)
