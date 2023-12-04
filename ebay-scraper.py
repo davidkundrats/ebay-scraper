@@ -27,7 +27,11 @@ def determine(df:pd.DataFrame):
     )
     match inputs:
         case "S":
-            save_csv(df, None) ##need to implement
+            postfix = ".csv"
+            path = input("Enter path to save CSV file locally: \n")
+            path+=(postfix)
+            save_csv(df, path) 
+            determine(df) 
         case "A":
             avg_price(df)
         case "Q":
@@ -35,6 +39,7 @@ def determine(df:pd.DataFrame):
             return
         case "D":
             determine_db_status()
+            determine(df)
         case _:
             print("Invalid input. Please try again.")
             determine(df)
