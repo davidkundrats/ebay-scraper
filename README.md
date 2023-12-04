@@ -10,5 +10,7 @@ Running is simple; clone the repo, create/activate venv and install -r requireme
 
 (12/2/23)
 *If using Arch, you may encounter the error "Python not configured for Tk"* 
-to solve this, install TK globally on your system 
-**sudo pacman -S tk** 
+to solve this, install TK globally on your system: 
+<pre>
+sudo pacman -S tk
+</pre>
