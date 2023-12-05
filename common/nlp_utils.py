@@ -5,7 +5,8 @@ from sklearn.metrics import mean_squared_error
 import pandas as pd
 import numpy as np
 ##streamline for testing purposes
-
+##process string by camera name, lens when applicable?
+#train nn?
 def preprocess(df:pd.DataFrame)-> tuple:
     """
     Preprocesses the given DataFrame by performing TF-IDF vectorization and splitting the data
