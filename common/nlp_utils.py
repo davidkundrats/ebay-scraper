@@ -7,6 +7,7 @@ import numpy as np
 ##streamline for testing purposes
 ##process string by camera name, lens when applicable?
 #train nn?
+#determine which model
 def preprocess(df:pd.DataFrame)-> tuple:
     """
     Preprocesses the given DataFrame by performing TF-IDF vectorization and splitting the data
