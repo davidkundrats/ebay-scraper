@@ -9,7 +9,16 @@ matplotlib.use("TkAgg")
 
 
 def create_df(name, price, date):
-    """Creates a DataFrame and truncates '$' and commas present."""
+    """Creates a DataFrame and truncates '$' and commas present.""""""Creates a DataFrame and cleans up special characters in 'price' column.
+
+    Args:
+    - name (list): List of listed names.
+    - price (list): List of sold prices.
+    - date (list): List of dates.
+
+    Returns:
+    - pandas.DataFrame: A DataFrame containing 'Listed Name', 'Sold Price', and 'Date Sold'.
+    """
     df = pd.DataFrame({"Listed Name": name, "Sold Price": price, "Date Sold": date})
     columns = df.columns
     df[columns] = df[columns].replace(  # clean out unnecessary strings in rows
@@ -23,14 +32,26 @@ def create_df(name, price, date):
 
 
 def save_csv(df, path):
-    """Method to save a DataFrame as a .csv using pathlib library"""
+    """Method to save a DataFrame as a .csv using pathlib library""" """Saves a DataFrame as a .csv file using pathlib.
+
+    Args:
+    - df (pandas.DataFrame): DataFrame to be saved.
+    - path (str or Path): Path to save the DataFrame as a .csv file.
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path)
 
 
 def avg_price(df):
-    """Method used to calculate and visualize the average sold price."""
+    """Calculates and visualizes the average sold price over the last 30 days.
+
+    Args:
+    - df (pandas.DataFrame): DataFrame containing 'Date Sold' and 'Sold Price'.
+
+    Returns:
+    - None
+    """
     df["Date Sold"] = pd.to_datetime(df["Date Sold"], format="%b %d %Y")
     # Filter the DataFrame to keep only the last 30 days
     last_30_days = df["Date Sold"].max() - pd.DateOffset(days=30)
@@ -59,16 +80,33 @@ def avg_price(df):
 
 
 def determine_db_status():
-    """Method used to determine if the database connection exists
-    if yes: connect, if not, inform user and continue"""
+    """Determines the existence of a database connection.
+
+    Returns:
+    - None
+    """
     pass
 
 
 def add_to_db(df):
-    """Method used to add the DataFrame to a database"""
+    """Adds a DataFrame to a database.
+
+    Args:
+    - df (pandas.DataFrame): DataFrame to be added to the database.
+
+    Returns:
+    - None
+    """
     pass
 
 
 def retreive_from_db(df):
-    """Method used to retreive the DataFrame from the database"""
+   """Retrieves a DataFrame from a database.
+
+    Args:
+    - df (pandas.DataFrame): DataFrame to retrieve from the database.
+
+    Returns:
+    - None
+    """
     pass
