@@ -3,5 +3,4 @@ venv/
 python/src/__pycache__/
 common/__pycache__*
 .projectile*
-*.csv
 tests/
