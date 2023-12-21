@@ -6,14 +6,13 @@ from transformers import BertTokenizer
 
 def preprocess(text)-> list:
     """
-    Preprocesses the given DataFrame by performing TF-IDF vectorization and splitting the data
-    into training and testing sets for the Sold Price prediction.
+    Preprocesses the given text using BERT tokenizer.
 
     Parameters:
-    - df (pd.DataFrame): The DataFrame containing 'Listed Name' and 'Sold Price' columns.
+    - text (str): The input text to be tokenized and encoded.
 
     Returns:
-    - tuple: A tuple containing X_train, X_test, y_train, y_test for model training and evaluation.
+    - list: A list containing the encoded tokens of the input text.
     """
     
     bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', padding = True)
