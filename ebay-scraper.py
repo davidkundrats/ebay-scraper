@@ -16,9 +16,6 @@ def run():
     df = ebay_scraper(link_input)
     determine(df)
 
-
-def determine(df:pd.DataFrame):
-    """Method to determine which function to call based on user input"""
     if df is None:
         print("Error occurred during data scraping.")
         return
